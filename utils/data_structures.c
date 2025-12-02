@@ -52,7 +52,7 @@ bool list_push_back(const node_t *value, list_t *list) {
 
     if (list->length == list->capacity) {
         size_t new_capacity = list->capacity ? list->capacity * 2 : 4;
-        node_t *tmp = realloc(list->nodes, new_cap * sizeof *tmp);
+        node_t *tmp = realloc(list->nodes, new_capacity * sizeof *tmp);
         if (!tmp) {
             fprintf(stderr, "list_push_back: realloc failed.\n");
             return false;
@@ -72,7 +72,10 @@ node_t list_pop(list_t *list) {
     return node;
 }
 
-int get_index(node_t node, list_t list);
+int get_list_index(node_t node, list_t list) {
+    printf("get_list_index: Not implemented.\n");
+    return -1;
+}
 
 void free_list(list_t *list) {
     if (!list) return;
@@ -83,14 +86,57 @@ void free_list(list_t *list) {
     *list = (list_t){0};
 }
 
-map_t create_empty_map();
-void push_back(key_value_t node, map_t *map);
-key_value_t remove_item_from_map(int idx, map_t *map);
-key_value_t remove_item_from_map(key_value_t node, map_t *map);
-key_value_t pop(map_t *map);
-void free_map(map_t *map);
+map_t create_empty_map() {
+    const size_t init_capacity = 8;
+    map_t map = {0};
 
-matrix_t create_matrix();
-void add_row(list_t row, matrix_t *matrix);
-key_value_t find_item(node_t search, matrix_t matrix);
-void free_matrix(matrix_t *matrix);
+    map.data = malloc(init_capacity * sizeof *map.data);
+    if (!map.data) {
+        fprintf(stderr, "create_empty_map: out of memory.\n");
+        return map;
+    }
+
+    map.length = 0;
+    map.capacity = init_capacity;
+    return map;
+}
+
+bool map_push_back(const key_value_t *value, map_t *map) {
+    if (!map || !value) return false;
+
+    if (map->length == map->capacity) {
+        size_t new_capacity = map->capacity ? map->capacity * 2 : 4;
+        key_value_t *tmp = realloc(map->data, new_capacity * sizeof *tmp);
+        if (!tmp) {
+            fprintf(stderr, "list_push_back: realloc failed.\n");
+            return false;
+        }
+        map->data = tmp;
+        map->capacity = new_capacity;
+    }
+
+    map->data[map->length++] = *value;
+    return true;
+}
+
+key_value_t map_pop(map_t *map) {
+    if (!map || map->length == 0) return (key_value_t){0};
+    key_value_t value = map->data[--map->length];
+    map->data[map->length] = (key_value_t){0};
+    return value;
+}
+
+void free_map(map_t *map) {
+    if (!map) return;
+
+    for (size_t i = 0; i < map->length; i++) {
+        free_key_value(&map->data[i]);
+    }
+    free(map);
+    *map = (map_t){0};
+}
+
+// matrix_t create_matrix();
+// void add_row(list_t row, matrix_t *matrix);
+// key_value_t find_item(node_t search, matrix_t matrix);
+// void free_matrix(matrix_t *matrix);
