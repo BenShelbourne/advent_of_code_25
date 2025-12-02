@@ -32,7 +32,7 @@ char *string_substring(const char *string, size_t start, size_t end) {
     size_t len = strlen(string);
     if (start > end || end > len) return NULL;
 
-    if (start == end) return string;
+    if (start == end) return strdup(string);
 
     size_t slice_len = end - start;
     char *substring = malloc(slice_len + 1);
@@ -43,58 +43,59 @@ char *string_substring(const char *string, size_t start, size_t end) {
     return substring;
 }
 
-// IDIOT MISREAD THE QUESTION!!!!!
-// int check_one_id(const node_t *product_id) {
-//     if (!product_id || product_id->size <= 1) return 0;
+// PART 1
+// bool check_one_id(const char *id) {
+//     size_t len = strlen(id);
+//     if (len % 2 == 0) {
+//         int midpoint = len/2;
+//         char *first_half = string_substring(id, 0, midpoint);
+//         char *second_half = string_substring(id, midpoint, len);
 
-//     const char *data = product_id->data;
-//     if (!data || data[0] == '0') return 0;
-    
-//     char *invalid_id = calloc(product_id->size + 1, 1);
-//     if (!invalid_id) {
-//         fprintf(stderr, "check_one_id: could not create buffer.\n");
-//         return 0;
-//     }
-
-//     for (size_t i = 1; i < product_id->size; i++) {
-//         if (data[i-1] == data[i]) {
-//             if (i == 1) {
-//                 invalid_id[0] = data[0];
-//                 invalid_id[1] = data[1];
-//             } else {
-//                 invalid_id[i] = data[i];
-//             }
+//         if (first_half[0] == 0 || second_half[0] == 0) {
+//             return 0;
 //         }
+
+//         // printf("\t%lu/%d: %s - %s\n",len, midpoint, first_half, second_half);
+//         return strcmp(first_half, second_half) == 0;
 //     }
-
-//     int result = invalid_id[0] ? atoi(invalid_id) : 0;
-//     free(invalid);
-//     return result;
+//     return false;
 // }
 
-// int check_two_ids(const node_t *first_prod, const node_t *second_prod) {
-//     if (!first_prod || !second_prod)
-// }
+list_t get_chunks(const char *id, int chunks) {
+    size_t len = strlen(id);
+    size_t chunk_size = len / chunks;
+    list_t chunk_list = create_list();
 
-// int check_valid(node_t first, node_t second) {
-//     return check_one_id(&first) + check_one_id(&second) + check_two_ids(&first, &second);
-// }
+    for (size_t i = 0; i < len; i+=chunk_size) {
+        node_t chunk = create_node(string_substring(id, i, i+chunk_size));
+        list_push_back(&chunk, &chunk_list);
+    }
+
+    return chunk_list;
+}
 
 bool check_one_id(const char *id) {
+    bool isValid = false;
     size_t len = strlen(id);
-    if (len % 2 == 0) {
-        int midpoint = len/2;
-        char *first_half = string_substring(id, 0, midpoint);
-        char *second_half = string_substring(id, midpoint, len);
-
-        if (first_half[0] == 0 || second_half[0] == 0) {
-            return 0;
+    for (size_t i = 2; i <= 10; ++i) {
+        if (len % i == 0) {
+            list_t chunks = get_chunks(id, i);
+            
+            isValid = true;
+            for (size_t j = 1; j < chunks.length; ++j) {
+                // printf("comparing %s with %s\n", chunks.nodes[0].data, chunks.nodes[j].data);
+                if (strcmp(chunks.nodes[0].data, chunks.nodes[j].data) != 0) {
+                    isValid = false;
+                    break;
+                }
+            }
+            
+            free_list(&chunks);
+            if(isValid) return true;
         }
-
-        // printf("\t%lu/%d: %s - %s\n",len, midpoint, first_half, second_half);
-        return strcmp(first_half, second_half) == 0;
     }
-    return false;
+
+    return isValid;
 }
 
 unsigned long long check_valid(const node_t *first, const node_t *second) {
@@ -102,7 +103,7 @@ unsigned long long check_valid(const node_t *first, const node_t *second) {
     unsigned long long end = strtoull(second->data, NULL, 10);
     unsigned long long total = 0;
 
-    printf("%llu-%llu\n", start, end);
+    // printf("%llu-%llu\n", start, end);
 
     for (unsigned long long value = start; value <= end; ++value) {
         char buffer[32];
@@ -112,7 +113,7 @@ unsigned long long check_valid(const node_t *first, const node_t *second) {
         }
 
         if (check_one_id(buffer)) {
-            printf("\t\t%llu\n", value);
+            // printf("\t\t%llu\n", value);
             total += value;
         }
     }
