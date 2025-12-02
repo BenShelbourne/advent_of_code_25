@@ -6,50 +6,15 @@
 
 #include "data_structures.h"
 #include "file.h"
-
-list_t string_split(char *data, char delimeter) {
-    const char *start = data;
-    list_t list = create_list();
-
-    while (start) {
-        const char *end = strchr(start, delimeter);
-        size_t len = end ? (size_t)(end - start) : strlen(start);
-        char *token = malloc(len + 1);
-        memcpy(token, start, len);
-        token[len] = '\0';
-        node_t node = create_node(token);
-        list_push_back(&node, &list);
-        free(token);
-        start = end ? end + 1 : NULL;
-    }
-
-    return list;
-}
-
-char *string_substring(const char *string, size_t start, size_t end) {
-    if (!string) return NULL;
-
-    size_t len = strlen(string);
-    if (start > end || end > len) return NULL;
-
-    if (start == end) return strdup(string);
-
-    size_t slice_len = end - start;
-    char *substring = malloc(slice_len + 1);
-    if (!substring) return NULL;
-
-    memcpy(substring, string + start, slice_len);
-    substring[slice_len] = '\0';
-    return substring;
-}
+#include "string_help.h"
 
 // PART 1
 // bool check_one_id(const char *id) {
 //     size_t len = strlen(id);
 //     if (len % 2 == 0) {
 //         int midpoint = len/2;
-//         char *first_half = string_substring(id, 0, midpoint);
-//         char *second_half = string_substring(id, midpoint, len);
+//         char *first_half = substring(id, 0, midpoint);
+//         char *second_half = substring(id, midpoint, len);
 
 //         if (first_half[0] == 0 || second_half[0] == 0) {
 //             return 0;
@@ -67,7 +32,7 @@ list_t get_chunks(const char *id, int chunks) {
     list_t chunk_list = create_list();
 
     for (size_t i = 0; i < len; i+=chunk_size) {
-        node_t chunk = create_node(string_substring(id, i, i+chunk_size));
+        node_t chunk = create_node(substring(id, i, i+chunk_size));
         list_push_back(&chunk, &chunk_list);
     }
 
@@ -127,12 +92,12 @@ int main(void) {
     // input guaranteed to be single line
     line_t input = file.lines[0];
 
-    list_t ranges = string_split(input.data, ',');
+    list_t ranges = split(input.data, ',');
 
     unsigned long long result = 0;
 
     for (size_t i = 0; i < ranges.length; i++) {
-        list_t ids = string_split(ranges.nodes[i].data, '-');
+        list_t ids = split(ranges.nodes[i].data, '-');
         if (ids.length != 2) {
             fprintf(stderr, "More than 2 ids!\n");
             continue;
