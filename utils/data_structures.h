@@ -2,6 +2,7 @@
 #define DATA_STRUCTURES_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef struct {
     char *data;
@@ -48,16 +49,14 @@ node_t create_node(const char *data);
 key_value_t create_key_value(const node_t key, const node_t value);
 
 list_t create_list();
-void push_back(node_t node, list_t *list);
-node_t pop(list_t *list);
-int get_index(node_t node, list_t list);
-void free_list(list_t list);
+bool list_push_back(const node_t *value, list_t *list);
+node_t list_pop(list_t *list);
+int get_list_index(node_t node, list_t list);
+void free_list(list_t *list);
 
 map_t create_empty_map();
-void push_back(key_value_t node, map_t *map);
-key_value_t remove_item_from_map(int idx, map_t *map);
-key_value_t remove_item_from_map(key_value_t node, map_t *map);
-key_value_t pop(map_t *map);
+bool map_push_back(const key_value_t *value, map_t *map);
+key_value_t map_pop(map_t *map);
 void free_map(map_t *map);
 
 matrix_t create_matrix();
