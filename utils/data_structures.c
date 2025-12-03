@@ -14,6 +14,13 @@ node_t create_node(const char *data) {
     return node;
 }
 
+node_t create_int_node(const int data) {
+    if (data == NULL) {
+        fprintf(stderr, "create_node: NULL data.\n");
+        return (node_t){0};
+    }
+}
+
 void free_node(node_t *node) {
     if (!node) return;
     free(node->data);

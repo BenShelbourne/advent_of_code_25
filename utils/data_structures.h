@@ -45,8 +45,10 @@ typedef struct {
 } matrix_t;
 
 node_t create_node(const char *data);
+void free_node(node_t *node);
 
 key_value_t create_key_value(const node_t key, const node_t value);
+void free_key_value(key_value_t *kvt);
 
 list_t create_list();
 bool list_push_back(const node_t *value, list_t *list);
