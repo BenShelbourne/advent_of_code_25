@@ -56,33 +56,62 @@ key_value_t find_highest_num(char *input) {
 int main(void) {
     file_t file = read_file("input.txt");
 
-    int total = 0;
+    unsigned long long total = 0;
     for (size_t i = 0; i < file.line_count; ++i) {
+        int battery_size = 12;
         line_t battery_pack = file.lines[i];
-        char *first_search = substring(battery_pack.data, 0, battery_pack.length - 2);
+        char buffer[battery_size + 1];
+        size_t buffer_offset = 0;
+
+        char *first_search = substring(battery_pack.data, 0, battery_pack.length - 1 - (battery_size - 1));
         key_value_t first_num = find_highest_num(first_search);
-
         size_t cut = (size_t)buffer_to_int(first_num.key.data);
-        // printf("\t\tcut=%lu key=%s val=%s\n", cut, first_num.key.data, first_num.value.data);
-        char *second_search = substring(battery_pack.data, cut + 1, battery_pack.length);
-        key_value_t second_num = find_highest_num(second_search);
+        buffer[buffer_offset++] = first_num.value.data[0];
 
-        char buffer[4];
-        int written = snprintf(buffer, sizeof buffer, "%s%s", first_num.value.data, second_num.value.data);
-        if (written < 0 || written >= sizeof buffer) {
-            fprintf(stderr, "check_valid: failed to convert int -> char.\n");
+        printf("\t\tfirst_cut=%lu first_key=%s first_val=%s first_sub=%s\n", cut, first_num.key.data, first_num.value.data, first_search);
+
+
+        size_t remaining = battery_size - 1;
+        while(remaining--) {
+            size_t start = cut + 1;
+            char *search_string = substring(battery_pack.data, start, battery_pack.length - 1 - remaining);
+
+            key_value_t search = find_highest_num(search_string);
+
+            size_t cursor = (size_t)buffer_to_int(search.key.data);
+            cut = start + cursor;
+            buffer[buffer_offset++] = search.value.data[0];
+            free(search_string);
+            free_key_value(&search);            
         }
 
-        // printf("\tbuff=%s\n", buffer);
-        total += atoi(buffer);
-
         free(first_search);
-        free(second_search);
         free_key_value(&first_num);
-        free_key_value(&second_num);
+
+        // buffer[buffer_offset++] = first_num.value.data[0];
+        // free(first_search);
+        // free_key_value(&first_num);
+
+        // for (size_t j = battery_size -= 1; j > 0; --j) {
+        //     char *search_string = substring(battery_pack.data, cut + 1, battery_pack.length - j);
+        //     key_value_t search = find_highest_num(search_string);
+
+        //     cut += (size_t)buffer_to_int(search.key.data) + 1;
+        //     printf("\t\tcut=%lu key=%s val=%s sub=%s j=%lu\n", cut, search.key.data, search.value.data, search_string, j);
+        //     buffer[buffer_offset++] = search.value.data[0];
+        //     free(search_string);
+        //     free_key_value(&search);
+        // }
+
+        buffer[buffer_offset] = '\0';
+
+        // 987654321111111
+
+        printf("\tbuff=%s\n", buffer);
+        total += strtoul(buffer, NULL, 10);
     }
 
     free_file(&file);
 
-    printf("%d\n", total);
+    printf("%llu\n", total);
 }
