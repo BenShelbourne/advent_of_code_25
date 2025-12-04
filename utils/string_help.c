@@ -38,3 +38,20 @@ char *substring(const char *string, size_t start, size_t end) {
     substring[slice_len] = '\0';
     return substring;
 }
+
+char *int_to_buffer(int num) {
+    char buf[12];
+    int len = snprintf(buf, sizeof buf, "%d", num);
+    if (len < 0) return NULL;
+    char *res = malloc((size_t)len + 1);
+    if (!res) return NULL;
+    memcpy(res, buf, (size_t)len + 1);
+    return res;
+}
+
+int buffer_to_int(const char *buffer) {
+    if (!buffer) return 0;
+    char *end = NULL;
+    long val = strtol(buffer, &end, 10);
+    return (end == buffer) ? 0 : (int)val;
+}
